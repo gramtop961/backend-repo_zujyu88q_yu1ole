@@ -12,9 +12,9 @@ Model name is converted to lowercase for the collection name:
 """
 
 from pydantic import BaseModel, Field
-from typing import Optional
+from typing import Optional, List, Dict, Any
 
-# Example schemas (replace with your own):
+# Example schemas (keep for reference)
 
 class User(BaseModel):
     """
@@ -38,11 +38,30 @@ class Product(BaseModel):
     category: str = Field(..., description="Product category")
     in_stock: bool = Field(True, description="Whether product is in stock")
 
-# Add your own schemas here:
-# --------------------------------------------------
+# AI YouTube Clipper Schemas
 
-# Note: The Flames database viewer will automatically:
-# 1. Read these schemas from GET /schema endpoint
-# 2. Use them for document validation when creating/editing
-# 3. Handle all database operations (CRUD) directly
-# 4. You don't need to create any database endpoints!
+class ClipSuggestion(BaseModel):
+    start: float = Field(..., description="Start time in seconds")
+    end: float = Field(..., description="End time in seconds")
+    text: str = Field(..., description="Transcript text inside the clip window")
+    score: float = Field(..., description="Relevance score for ranking")
+    title: str = Field(..., description="Short human-friendly title for the clip")
+
+class ClipRequest(BaseModel):
+    url: str = Field(..., description="YouTube video URL")
+    max_clips: int = Field(5, ge=1, le=10, description="Maximum number of clips to return")
+    clip_length: int = Field(30, ge=10, le=120, description="Length of each clip in seconds")
+    language: Optional[str] = Field(None, description="Preferred transcript language (e.g., 'en')")
+
+class ClipAnalysis(BaseModel):
+    url: str
+    video_id: str
+    title: Optional[str] = None
+    author: Optional[str] = None
+    thumbnail: Optional[str] = None
+    suggestions: List[ClipSuggestion]
+    summary: Optional[str] = None
+    language: Optional[str] = None
+    clip_length: int
+    max_clips: int
+    raw_stats: Optional[Dict[str, Any]] = None
